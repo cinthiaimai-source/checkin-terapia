@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Check-in Semanal (Paciente)</title>
+  <style>
+    :root{
+      --bg:#f6f9ff; --card:#fff; --text:#0f172a; --muted:#64748b; --border:#e2e8f0;
+      --blue:#2563eb; --violet:#8b5cf6; --emerald:#10b981; --rose:#f43f5e;
+      --shadow:0 12px 30px rgba(15,23,42,.08); --radius:16px;
+      --softBlue:#eff6ff; --softViolet:#f5f3ff; --softRose:#fff1f2; --softGreen:#ecfdf5;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(1000px 550px at 10% 10%, #dbeafe 0%, transparent 60%),
+        radial-gradient(900px 500px at 90% 15%, #ede9fe 0%, transparent 55%),
+        radial-gradient(900px 500px at 45% 95%, #dcfce7 0%, transparent 60%),
+        var(--bg);
+    }
+    .wrap{max-width:720px; margin:18px auto; padding:0 14px 34px;}
+    .card{
+      background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+      box-shadow:var(--shadow); padding:14px; margin-top:12px;
+    }
+    h1{margin:0; font-size:18px;}
+    .sub{margin-top:6px; color:var(--muted); line-height:1.35; font-size:13px;}
+    label{font-size:12px; color:var(--muted)}
+    input, select{
+      width:100%; padding:12px 12px; border-radius:14px; border:1px solid var(--border);
+      outline:none; background:#fff;
+      font-size:15px;
+    }
+    input:focus, select:focus{border-color:#93c5fd; box-shadow:0 0 0 4px rgba(59,130,246,.12)}
+    .row{display:grid; gap:10px; grid-template-columns:1fr 1fr}
+    @media (max-width:640px){ .row{grid-template-columns:1fr} }
+
+    .q{
+      border:1px solid var(--border); border-radius:14px; padding:12px;
+      background: linear-gradient(180deg, #ffffff, #fbfdff);
+      margin-top:10px;
+    }
+    .qt{font-weight:900; margin:0; font-size:14px}
+    .qd{margin:6px 0 10px; color:var(--muted); font-size:13px; line-height:1.35}
+    .opt{
+      display:flex; gap:10px; align-items:flex-start; padding:10px;
+      border:1px solid var(--border); border-radius:12px; background:#fff; margin-top:8px;
+    }
+    .opt input{width:auto; margin-top:2px}
+    .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+    button{
+      border:0; border-radius:14px; padding:12px 12px; font-weight:1000; cursor:pointer;
+      box-shadow: 0 10px 18px rgba(15,23,42,.08);
+      flex:1 1 180px;
+      font-size:14px;
+    }
+    .primary{background:linear-gradient(135deg,var(--blue),var(--violet)); color:#fff}
+    .ghost{background:#fff; border:1px solid var(--border); box-shadow:none}
+    .ok{background:linear-gradient(135deg,var(--emerald),#22c55e); color:#052e1b}
+    .warn{background:linear-gradient(135deg,#fb7185,var(--rose)); color:#111827}
+    .pill{
+      display:flex; gap:8px; align-items:center; padding:10px 12px;
+      border:1px solid var(--border); border-radius:999px; background:#fff; font-weight:900;
+      margin-top:10px;
+    }
+    .pill i{width:10px; height:10px; border-radius:999px; background:var(--blue); display:inline-block}
+    .code{
+      width:100%;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      background: linear-gradient(135deg, var(--softViolet), #fff);
+      min-height:86px;
+      white-space:pre-wrap;
+      word-break:break-word;
+      margin-top:10px;
+    }
+    .emotionBox{
+      border:1px dashed #cbd5e1; border-radius:14px; padding:12px;
+      background: linear-gradient(135deg, #ffffff, var(--softRose));
+      margin-top:10px;
+    }
+    .tiny{font-size:12px; color:var(--muted); line-height:1.35; margin-top:8px}
+    .memBox{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px;
+      background: linear-gradient(135deg, var(--softGreen), #ffffff);
+      margin-top:12px;
+    }
+    .memTitle{font-weight:1000; margin:0 0 6px}
+    .memLine{font-size:12px; color:var(--muted); line-height:1.35}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>Check-in Semanal (Paciente)</h1>
+    <div class="sub">
+      Pense na <b>última semana</b>. No final, toque em <b>Copiar código</b> e mande no WhatsApp para sua psicóloga
+      (ou use <b>Baixar JSON</b>).
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div>
+        <label>Seu ID (se sua psicóloga te deu)</label>
+        <input id="pid" placeholder="ex.: P-0007 (opcional)"/>
+      </div>
+      <div>
+        <label>Seu nome/apelido</label>
+        <input id="pname" placeholder="ex.: João / Jota"/>
+      </div>
+      <div>
+        <label>Data do check-in</label>
+        <input id="date" type="date"/>
+      </div>
+      <div>
+        <label>Escolha a escala</label>
+        <select id="scale">
+          <option value="ansiedade">Ansiedade</option>
+          <option value="depressao">Depressão</option>
+          <option value="emocao">Outra emoção (raiva/ciúmes/vergonha...)</option>
+          <option value="positivas">Emoções positivas</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="memBox">
+      <div class="memTitle">Primeira vez?</div>
+      <div class="memLine">
+        Preencha seu <b>ID</b> (se tiver) e seu <b>nome</b>. Depois toque em <b>Salvar meus dados</b>.
+        Na próxima semana isso já vai aparecer automático.
+      </div>
+      <div class="btns" style="margin-top:10px">
+        <button class="ok" id="btnRemember">Salvar meus dados (1ª vez)</button>
+        <button class="ghost" id="btnForget">Limpar meus dados (trocar paciente)</button>
+      </div>
+      <div class="tiny" id="memStatus">Ainda não salvei meus dados.</div>
+    </div>
+
+    <div id="emotionWrap" class="emotionBox" style="display:none">
+      <label>EMOÇÃO: ______</label>
+      <input id="emotionName" placeholder="ex.: raiva / ciúmes / vergonha"/>
+      <div class="tiny">Dica: coloque só uma emoção por vez (se quiser, depois você faz outra).</div>
+    </div>
+
+    <div id="qs"></div>
+
+    <div class="pill" id="status"><i></i><span>Responda as 5 perguntas</span></div>
+
+    <div class="btns">
+      <button class="primary" id="btnMake">Gerar envio</button>
+      <button class="ok" id="btnCopy" disabled>Copiar código</button>
+      <button class="ghost" id="btnJSON" disabled>Baixar JSON</button>
+      <button class="warn" id="btnClear">Limpar</button>
+    </div>
+
+    <div class="code" id="codeBox" aria-label="Código para enviar" style="display:none"></div>
+    <div class="tiny" id="tinyHelp" style="display:none">
+      Copie e cole no WhatsApp. Sua psicóloga cola no programa e importa automaticamente.
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (id)=>document.getElementById(id);
+
+  const MEM_KEY = "patient_checkin_identity_v1"; // {pid, pname, saved_at}
+
+  const SCALES = {
+    ansiedade: {
+      title: "Ansiedade",
+      questions: [
+        {id:"q1", t:"Frequência", d:"Na última semana, quantas vezes a ansiedade apareceu?"},
+        {id:"q2", t:"Intensidade", d:"Quando veio, o quão forte foi?"},
+        {id:"q3", t:"Evitar", d:"Você evitou coisas por causa da ansiedade/medo?"},
+        {id:"q4", t:"Obrigações", d:"Quanto atrapalhou escola/tarefas/rotina?"},
+        {id:"q5", t:"Relações", d:"Quanto atrapalhou amigos/família/mensagens?"}
+      ]
+    },
+    depressao: {
+      title: "Depressão",
+      questions: [
+        {id:"q1", t:"Humor para baixo", d:"Quanto você ficou triste, vazio(a) ou sem graça?"},
+        {id:"q2", t:"Energia", d:"Como ficou sua energia para fazer as coisas?"},
+        {id:"q3", t:"Interesse", d:"Você conseguiu curtir algo ou sentir prazer?"},
+        {id:"q4", t:"Sono/corpo", d:"Seu sono/corpo atrapalharam sua semana?"},
+        {id:"q5", t:"Pensamentos negativos", d:"Quanto vieram pensamentos tipo 'não vai melhorar'?"}
+      ]
+    },
+    emocao: {
+      title: "Outra emoção",
+      questions: [
+        {id:"q1", t:"Frequência", d:"Na última semana, com que frequência você sentiu essa emoção?"},
+        {id:"q2", t:"Intensidade", d:"Quando veio, o quão forte foi?"},
+        {id:"q3", t:"Controle", d:"Quanto foi difícil segurar (impulso)?"},
+        {id:"q4", t:"Obrigações", d:"Quanto atrapalhou escola/tarefas/rotina?"},
+        {id:"q5", t:"Relações", d:"Quanto atrapalhou amigos/família/mensagens?"}
+      ]
+    },
+    positivas: {
+      title: "Emoções positivas",
+      questions: [
+        {id:"q1", t:"Alegria/leveza", d:"Quanto você sentiu momentos de alegria ou leveza?"},
+        {id:"q2", t:"Calma/segurança", d:"Quanto você conseguiu sentir calma ou segurança?"},
+        {id:"q3", t:"Orgulho", d:"Quanto você se sentiu orgulhoso(a) de algo?"},
+        {id:"q4", t:"Conexão", d:"Quanto você se sentiu conectado(a) com alguém?"},
+        {id:"q5", t:"Energia", d:"Quanto você teve energia/motivação?"}
+      ]
+    }
+  };
+
+  const OPTIONS = [
+    "0 — Nada / quase nunca",
+    "1 — Bem pouco",
+    "2 — Um pouco",
+    "3 — Bastante",
+    "4 — Muito"
+  ];
+
+  const elPid = $("pid");
+  const elPname = $("pname");
+  const elDate = $("date");
+  const elScale = $("scale");
+  const elEmotionWrap = $("emotionWrap");
+  const elEmotionName = $("emotionName");
+  const elQs = $("qs");
+  const elStatus = $("status");
+  const elCodeBox = $("codeBox");
+  const elTinyHelp = $("tinyHelp");
+
+  const btnMake = $("btnMake");
+  const btnCopy = $("btnCopy");
+  const btnJSON = $("btnJSON");
+  const btnClear = $("btnClear");
+
+  const btnRemember = $("btnRemember");
+  const btnForget = $("btnForget");
+  const memStatus = $("memStatus");
+
+  elDate.value = new Date().toISOString().slice(0,10);
+
+  function readMem(){
+    try{
+      const obj = JSON.parse(localStorage.getItem(MEM_KEY) || "null");
+      return obj && typeof obj === "object" ? obj : null;
+    }catch(e){ return null; }
+  }
+  function writeMem(obj){
+    localStorage.setItem(MEM_KEY, JSON.stringify(obj));
+  }
+  function clearMem(){
+    localStorage.removeItem(MEM_KEY);
+  }
+  function updateMemStatus(){
+    const m = readMem();
+    if(m){
+      memStatus.textContent = `✅ Dados salvos: ${m.pid ? m.pid + " • " : ""}${m.pname || ""} (salvo em ${new Date(m.saved_at).toLocaleString()})`;
+    } else {
+      memStatus.textContent = "Ainda não salvei meus dados.";
+    }
+  }
+
+  function autoFillIdentity(){
+    const m = readMem();
+    if(m){
+      if(m.pid && !elPid.value) elPid.value = m.pid;
+      if(m.pname && !elPname.value) elPname.value = m.pname;
+    }
+    updateMemStatus();
+  }
+
+  btnRemember.addEventListener("click", () => {
+    const pid = (elPid.value || "").trim();
+    const pname = (elPname.value || "").trim();
+    if(!pid && !pname){
+      alert("Coloque pelo menos seu nome/apelido (ou seu ID).");
+      return;
+    }
+    writeMem({ pid: pid || null, pname: pname || null, saved_at: new Date().toISOString() });
+    updateMemStatus();
+    alert("Salvo ✅ Na próxima semana isso já aparece automático.");
+  });
+
+  btnForget.addEventListener("click", () => {
+    if(confirm("Limpar seus dados salvos neste celular?")){
+      clearMem();
+      updateMemStatus();
+      alert("Ok — dados limpos.");
+    }
+  });
+
+  function buildQuestions(){
+    const sid = elScale.value;
+    elEmotionWrap.style.display = sid==="emocao" ? "block" : "none";
+    elQs.innerHTML = "";
+
+    const qlist = SCALES[sid].questions;
+
+    qlist.forEach((q, idx) => {
+      const box = document.createElement("div");
+      box.className = "q";
+      box.innerHTML = `
+        <p class="qt">${idx+1}. ${q.t}</p>
+        <div class="qd">${q.d}</div>
+        <div id="opt_${q.id}"></div>
+      `;
+      const optWrap = box.querySelector(`#opt_${q.id}`);
+      OPTIONS.forEach((txt, val) => {
+        const row = document.createElement("label");
+        row.className = "opt";
+        row.innerHTML = `
+          <input type="radio" name="${q.id}" value="${val}"/>
+          <div>${txt}</div>
+        `;
+        optWrap.appendChild(row);
+      });
+      elQs.appendChild(box);
+    });
+
+    document.querySelectorAll('input[type="radio"]').forEach(r=>{
+      r.addEventListener("change", updateStatus);
+    });
+
+    resetGenerated();
+    updateStatus();
+  }
+
+  function getAnswers(){
+    const sid = elScale.value;
+    const qlist = SCALES[sid].questions;
+    const ans = {};
+    let complete = true;
+    qlist.forEach(q=>{
+      const c = document.querySelector(`input[name="${q.id}"]:checked`);
+      if(!c) complete = false;
+      ans[q.id] = c ? Number(c.value) : null;
+    });
+    return {ans, complete};
+  }
+
+  function updateStatus(){
+    const {complete} = getAnswers();
+    const dot = elStatus.querySelector("i");
+    const txt = elStatus.querySelector("span");
+
+    if(!complete){
+      dot.style.background = "var(--blue)";
+      txt.textContent = "Responda as 5 perguntas";
+      return;
+    }
+    dot.style.background = "var(--emerald)";
+    txt.textContent = "Ok! Agora toque em “Gerar envio”";
+  }
+
+  function resetGenerated(){
+    btnCopy.disabled = true;
+    btnJSON.disabled = true;
+    elCodeBox.style.display = "none";
+    elTinyHelp.style.display = "none";
+    elCodeBox.textContent = "";
+    elCodeBox.dataset.payload = "";
+  }
+
+  function base64urlEncode(str){
+    const b64 = btoa(unescape(encodeURIComponent(str)));
+    return b64.replaceAll("+","-").replaceAll("/","_").replaceAll("=","");
+  }
+  function downloadJSON(obj){
+    const blob = new Blob([JSON.stringify(obj, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `checkin_${obj.scale}_${obj.date}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function makePayload(){
+    const sid = elScale.value;
+    const date = (elDate.value||"").trim();
+    const pname = (elPname.value||"").trim();
+    const pid = (elPid.value||"").trim();
+    const emo = (elEmotionName.value||"").trim();
+
+    if(!date) return {error:"Selecione a data."};
+    if(!pname && !pid) return {error:"Coloque pelo menos seu nome/apelido (ou ID)."};
+    if(sid==="emocao" && !emo) return {error:"Preencha EMOÇÃO (ex.: raiva/ciúmes/vergonha)."};
+    const {ans, complete} = getAnswers();
+    if(!complete) return {error:"Responda todas as 5 perguntas."};
+
+    const total = Object.values(ans).reduce((a,b)=>a+(b??0),0);
+
+    const payload = {
+      v: 1,
+      date,
+      scale: sid,
+      patient_id: pid || null,
+      patient_name: pname || null,
+      emotion: sid==="emocao" ? emo : null,
+      answers: ans,
+      total,
+      created_at: new Date().toISOString()
+    };
+    return {payload};
+  }
+
+  btnMake.addEventListener("click", () => {
+    resetGenerated();
+    const m = makePayload();
+    if(m.error){ alert(m.error); return; }
+
+    // CÓDIGO = "CHK1." + base64url(json)
+    const json = JSON.stringify(m.payload);
+    const code = "CHK1." + base64urlEncode(json);
+
+    elCodeBox.style.display = "block";
+    elTinyHelp.style.display = "block";
+    elCodeBox.textContent = code;
+    elCodeBox.dataset.payload = json;
+
+    btnCopy.disabled = false;
+    btnJSON.disabled = false;
+  });
+
+  btnCopy.addEventListener("click", async () => {
+    const code = elCodeBox.textContent.trim();
+    if(!code) return;
+    try{
+      await navigator.clipboard.writeText(code);
+      alert("Copiado ✅ Agora cole no WhatsApp e envie.");
+    }catch(e){
+      const ta = document.createElement("textarea");
+      ta.value = code;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+      alert("Copiado ✅ Agora cole no WhatsApp e envie.");
+    }
+  });
+
+  btnJSON.addEventListener("click", () => {
+    const m = makePayload();
+    if(m.error){ alert(m.error); return; }
+    downloadJSON(m.payload);
+  });
+
+  btnClear.addEventListener("click", () => {
+    document.querySelectorAll('input[type="radio"]').forEach(r=> r.checked=false);
+    resetGenerated();
+    updateStatus();
+  });
+
+  elScale.addEventListener("change", buildQuestions);
+
+  // Auto: se o paciente editar ID/nome, não salvamos automaticamente (para evitar salvar errado).
+  // Ele salva com o botão "Salvar meus dados".
+  autoFillIdentity();
+  buildQuestions();
+})();
+</script>
+</body>
+</html>
